@@ -18,7 +18,9 @@
 
 **Done for v1 =** items 1–4 work end-to-end for Claude Code and Codex on the owner's machine, installable by a technical user from public instructions, with tests passing and all §6 workflow gates met. **Fast and functional first. No visual design work (D-002).**
 
-**Out of scope for v1 [PROPOSAL]:** hosted service, accounts/login, multi-user teams, billing, providers other than Claude Code and Codex, any upload of usage data off the user's machine, visual design polish, mobile apps.
+**In scope for v1 (owner decisions D-006, D-007):** agents running as **local CLI**, in the **cloud** (Claude Code on the web, Codex cloud — a first-class focus, not a later add-on), and in **automation** (headless/CI). Plans: **Claude Pro/Max** and **ChatGPT Plus/Pro**. First OS: **Windows (native)**.
+
+**Out of scope for v1:** API-key rate limits and spend, Team/Enterprise seats, IDE-extension-specific integration (D-007). **[PROPOSAL]** also out: hosted multi-user service, accounts/login, billing, providers other than Claude Code and Codex, visual design polish, mobile apps. Any upload of usage data off the user's machine needs an explicit owner decision (see cloud bridge, Q-16).
 
 ## 2. Data (required)
 
@@ -31,7 +33,15 @@
 | Status-line / hook / notification payloads the CLI passes to extensions | Claude Code, Codex | Official extension points; real-time | **[UNVERIFIED]** R1, R2, R4 |
 | Provider HTTP endpoints (documented or not), rate-limit response headers | Anthropic, OpenAI | Could give exact limit state; may need the user's credentials | **[UNVERIFIED]** — legal/ToS risk, R3 first |
 
-**Hard constraints [PROPOSAL, to confirm in Q-08]:** local-first; read-only toward providers; never store or log credentials; never transmit usage data anywhere; if a source needs the user's tokens, it is **opt-in, off by default**, and allowed only if R3 finds it legitimate.
+**Preliminary findings (Session 1, `research/PRELIM-S1-*.md`; re-verify in Session 2).** ✅ = verified by the main agent in the primary source.
+- ✅ **Claude Code status-line JSON** officially exposes `rate_limits.five_hour.used_percentage`, `rate_limits.seven_day.used_percentage`, and `resets_at` for each. It needs no token. It appears only for Pro/Max/Ultra, only after the first API response, and each window can be absent. Unknown: whether it runs in headless or cloud sessions.
+- Claude local transcripts hold token counts only, no limit % (unverified, secondary).
+- **Codex** has two local candidates: **rollout files** (`rate_limits.primary/secondary` with `used_percent`, `window_minutes`, `resets_at`; undocumented) and the **app-server** method `account/rateLimits/read` (Codex holds the login). `codex exec` writes `rate_limits: null`, so headless Codex is blind. All unverified by the main agent.
+- ✅ Anthropic's published text says developers "may not collect, store, or intermediate Claude.ai credentials or session tokens". Token-based usage endpoints (`/api/oauth/usage`, `wham/usage`) are undocumented and carry high ban risk.
+- Windows differ by plan (Codex Pro has no 5-hour limit; Claude Ultra has none). The tool must read windows live, never hardcode "5h/weekly".
+- Claude Code already has a built-in "continue automatically at usage limit" (interactive, v2.1.234+). Our resume value is the policy and checkpoint layer, not the wait itself.
+
+**Hard constraints [PROPOSAL, to confirm in Q-08b]:** local-first; read-only toward providers; never store or log credentials; never transmit usage data anywhere; if a source needs the user's tokens, it is **opt-in, off by default**, and allowed only if R3 finds it legitimate.
 
 **Own data model [PROPOSAL — shape only, to refine after R1/R2]:** local store with (a) *limit snapshots* — provider, account label, window id, used %, resets-at, observed-at, source, confidence; (b) *work sessions* — agent, start/end, tokens or cost where observable, % of window consumed, outcome (completed / stopped by policy / hit limit); (c) *policy events* — which rule fired, when, what the agent was told. No message content is stored.
 
@@ -112,7 +122,8 @@ Local web page served by the tool. Time-range selector; line/area graph of used 
 - **Unknown ≠ OK.** If limit data is missing, stale or unparseable, the answer is `unknown`, and the policy decides the safe behavior. It never reports 0% by default.
 - **Provider changes formats or limits without notice.** Collectors must fail loudly and say which source broke.
 - **Several agents share one account.** Two agents can burn the same window at once. The tool should show combined consumption. Per-agent attribution may be partial.
-- **Agent runs in the cloud (for example Claude Code on the web) or in a container** and cannot read the user's local files. Local collectors then do not work there. How to bridge this is open (Q-03, R4).
+- **Cloud agents (first-class, D-006).** A cloud session runs in a provider container and cannot read the user's local files; local collectors do not work there. Open: what limit data a cloud session can see itself (preliminary cloud research is in `research/PRELIM-S1-cloud.md`, unverified by the main agent; key result: no documented in-cloud readout, limits are account-level and shared, so a **local** collector can measure what cloud agents burn), whether hooks/status line run there, network allowlists, ephemeral disks, and which bridge to use (snapshot in a user-owned private repo, environment secret, MCP connector, or provider-native data only). See Q-16.
+- **Headless/automation blind spots.** Claude `claude -p` and Codex `codex exec` may expose no limit data (Codex: `rate_limits: null`). The policy must treat that as `unknown` (Q-18).
 - **Several accounts or plans** (personal/work; API key vs subscription): different limit types. Account labels are needed.
 - **Time zones, clock skew, DST** for reset times.
 - **User and agent disagree** (policy says stop; user says continue): the user's explicit instruction wins, and the override is logged.
@@ -137,7 +148,7 @@ Each step must be testable and reviewable. Order is a proposal; research may rem
 - **Playbook source/ref:** embedded copy in `docs/workflow/`; upstream `Simooo1010/claude-project-playbook` commit `e9abfefc9fa120504918e464f4bf2a7dcadf0570` (D-001; changes in `docs/workflow/ADAPTATIONS.md`).
 - **Approval mode:** **Strict** (default). Owner may change it by recording a decision. The owner wants high autonomy later; propose revisiting after Step 2 (Q-10).
 - **Owner:** Simooo1010 (repository owner).
-- **Test device(s):** not yet recorded (Q-12).
+- **Test device(s):** owner's OS is **Windows (native)**; browser and window sizes not yet recorded (Q-12).
 - **Supported UI:** minimal dashboard; one desktop browser; no design system.
 - **Allowed external writes:** none. This repository only, on the session branch. Providers are read-only.
 - **Approved dependencies:** **none yet.** Stack and dependencies are decided in Q-02 and then recorded here, with approver and date.
@@ -155,5 +166,11 @@ Each step must be testable and reviewable. Order is a proposal; research may rem
 | D-003 | 2026-11-08 | Intent: the tool is free for everyone; at minimum free for the owner's personal use. The license is **not yet chosen** (Q-05). | Owner | 1 |
 | D-004 | 2026-11-08 | Build in linked sessions: S0 setup → S1 define details → S2 research (legitimacy, legality, how agents should use limits, behavior catalogue) → S3 reconcile and approve spec → build steps. A `memory.md` file keeps continuity. | Owner | `docs/SESSIONS.md` |
 | D-005 | 2026-11-08 | No product code before the owner approves this spec. Spec v0 created in S0 is a draft. | Owner (workflow rule) | all |
+| D-006 | 2026-11-08 | **Cloud agents are a first-class focus of v1**, not only local ones. The cloud bridge design stays open until cloud research is done (Q-16). | Owner (message during S1) | 1, 4 |
+| D-007 | 2026-11-08 | v1 targets: agents as local CLI + cloud sessions + automation (headless/CI). IDE-extension integration is not a v1 target. Plans: Claude Pro/Max and ChatGPT Plus/Pro. API keys and Team/Enterprise are out of v1. First OS: Windows (native). | Owner (S1 Round 1) | 1, 6 |
+| D-008 | 2026-11-08 | Agents may **only propose** policy edits. The user approves before they apply. | Owner (S1 Round 2) | 3.5 |
+| D-009 | 2026-11-08 | "Resume" in v1 = agent writes a **checkpoint plus a restart recipe** per provider. Automated self-resume is added only after research confirms what is allowed. | Owner (S1 Round 2) | 3.2, 3.3 |
+| D-010 | 2026-11-08 | History retention default **90 days**, local, user-configurable. | Owner (S1 Round 2) | 2 |
+| D-011 | 2026-11-08 | **PROVISIONAL.** Token-based data sources: owner chose "opt-in, off by default" before seeing the research. Evidence now suggests Anthropic's text prohibits it. Owner must reconfirm or narrow (Q-08b). | Owner (S1 Round 1), pending reconfirm | 2 |
 
 Record spec changes with a `SPEC:` commit and a new row here.
