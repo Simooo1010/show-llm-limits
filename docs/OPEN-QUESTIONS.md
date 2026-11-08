@@ -86,3 +86,14 @@ Status: **All questions are answered or consciously deferred (end of Session 1b,
 | Probe script for `rate_limits`/`/usage` in a cloud VM | Not run. Owner approves the exact script first (D-027). | S2 |
 | Whether Codex app-server works on Windows native and its schema stability | Unknown; verify in R2. | S2 |
 | What a Claude cloud session prints at a limit; PreToolUse/Stop hooks in cloud | Unknown; advice-only in cloud until confirmed (D-017). | S2 (R4) |
+
+## Owner queue (unattended runs)
+Unattended windows (D-028) write here whatever needs the owner. The owner answers by adding a line `ANSWER: <text>` under the row, or by telling an interactive session. Windows apply answers at their start and record them as `SPEC:` decisions. Unanswered rows never block other work.
+
+| ID | Needs from owner | Recommendation | Blocks | Default if no answer |
+|---|---|---|---|---|
+| OQ-1 | Approve or reject the exact **cloud probe script** (D-027) once a window has prepared and shown it in `research/`. | Approve after reading it; it must read no tokens and push nothing. | Whether `rate_limits`/`/usage` exist in a cloud VM. | Treat cloud as `unknown`; keep bridge-only design. |
+| OQ-2 | Approve each **package** proposed by R8 (SQLite driver, chart library, CLI parser, YAML parser). | Approve the smallest set that meets the spec. | Step 1 skeleton. | No dependency is added. |
+| OQ-3 | **Merge** the draft PR from `docs/s2-autonomous` into `main` when you want the research on `main`. Windows never merge. | Merge after skimming `research/INDEX.md`. | Nothing; work continues on the branch. | Stays a draft PR. |
+| OQ-4 | **Spec approval** (Session 3). Only you can write "Spec approved". | Review the v1 proposal text first. | All product code. | No code is written. |
+| OQ-5 | Confirm the schedule time zone is **Europe/Rome** (assumed from commit timestamps +01:00). | Confirm, or tell a session the right zone. | Run times only. | Europe/Rome stays. |
