@@ -1,8 +1,8 @@
 # SPEC — show-llm-limits
 
-> **STATUS: DRAFT v0 — NOT APPROVED.** No product code may be written until the owner approves this spec (WORKFLOW §2). Statements marked **[UNVERIFIED]** are hypotheses to be checked in research (`docs/RESEARCH-PLAN.md`). Statements marked **[PROPOSAL]** are recommendations waiting for an owner decision (`docs/OPEN-QUESTIONS.md`). Nothing in this file is invented as a verified fact about a provider.
+> **STATUS: DRAFT v0.2 (Session 1b) — NOT APPROVED.** No product code may be written until the owner approves this spec (WORKFLOW §2). Statements marked **[UNVERIFIED]** are hypotheses to be checked in research (`docs/RESEARCH-PLAN.md`). Statements marked **[PROPOSAL]** are recommendations waiting for an owner decision (`docs/OPEN-QUESTIONS.md`). Nothing in this file is invented as a verified fact about a provider. All Session 1 and 1b questions are answered or consciously deferred (see `docs/OPEN-QUESTIONS.md`, "Deferred items").
 >
-> Working name: `show-llm-limits` (final name: open question Q-01).
+> Name: `show-llm-limits` (D-022).
 
 ## 1. Goal (required)
 
@@ -16,11 +16,13 @@
 3. **Dashboard for the user.** Graphs of limit consumption over time, per provider and window.
 4. **Make history available to agents.** The same data is readable by agents, so they can learn from past work (how much allowance a kind of task consumed) and balance work against limits. The user can enable highly autonomous operation if they choose.
 
-**Done for v1 =** items 1–4 work end-to-end for Claude Code and Codex on the owner's machine, installable by a technical user from public instructions, with tests passing and all §6 workflow gates met. **Fast and functional first. No visual design work (D-002).**
+**Done for v1 =** items 1–4 work end-to-end for Claude Code (local CLI and Claude Code cloud sessions) and for Codex (local CLI) on the owner's machine, installable by a technical user from public instructions, with tests passing and all §6 workflow gates met. "End-to-end for cloud" means: the local collector publishes a snapshot (D-015, D-016) and a Claude Code cloud session reads it and follows the policy. **Fast and functional first. No visual design work (D-002).**
 
-**In scope for v1 (owner decisions D-006, D-007):** agents running as **local CLI**, in the **cloud** (Claude Code on the web, Codex cloud — a first-class focus, not a later add-on), and in **automation** (headless/CI). Plans: **Claude Pro/Max** and **ChatGPT Plus/Pro**. First OS: **Windows (native)**.
+**In scope for v1 (owner decisions D-006, D-007, D-026):** agents running as **local CLI** (Claude Code, Codex), **Claude Code cloud sessions** (first-class), and **automation**: local headless runs (`claude -p`, `codex exec`) and **Claude scheduled tasks** (routines). Plans: **Claude Pro** (owner's tier) and **ChatGPT Plus** (owner's tier); Max and Pro tiers are supported by design because windows are read live (D-014). First OS: **Windows (native)**.
 
-**Out of scope for v1:** API-key rate limits and spend, Team/Enterprise seats, IDE-extension-specific integration (D-007). **[PROPOSAL]** also out: hosted multi-user service, accounts/login, billing, providers other than Claude Code and Codex, visual design polish, mobile apps. Any upload of usage data off the user's machine needs an explicit owner decision (see cloud bridge, Q-16).
+**Consciously deferred from v1 (D-026):** **Codex cloud tasks** and **GitHub Actions automation** (`claude-code-action` / Codex in CI). The owner does not use them, so they cannot be tested (gate 2). Codex cloud also has no repo hooks found and its legacy cloud experience may be deprecated. They are revisited after v1.
+
+**Out of scope for v1:** API-key rate limits and spend, Team/Enterprise seats, IDE-extension-specific integration (D-007). **[PROPOSAL]** also out: hosted multi-user service, accounts/login, billing, providers other than Claude Code and Codex, visual design polish, mobile apps, any hosted endpoint run by this project. Writing a usage snapshot to a repo is allowed only under D-016.
 
 ## 2. Data (required)
 
@@ -41,7 +43,13 @@
 - Windows differ by plan (Codex Pro has no 5-hour limit; Claude Ultra has none). The tool must read windows live, never hardcode "5h/weekly".
 - Claude Code already has a built-in "continue automatically at usage limit" (interactive, v2.1.234+). Our resume value is the policy and checkpoint layer, not the wait itself.
 
-**Hard constraints [PROPOSAL, to confirm in Q-08b]:** local-first; read-only toward providers; never store or log credentials; never transmit usage data anywhere; if a source needs the user's tokens, it is **opt-in, off by default**, and allowed only if R3 finds it legitimate.
+**Hard constraints (D-012, D-016):**
+- Local-first. Read-only toward providers. Never store or log credentials.
+- **Default sources are official and token-free:** Claude status-line `rate_limits`; Codex app-server (Codex holds the login) and local rollout files (subject to R2/R3).
+- **Claude:** no code that reads, stores or sends a Claude login token ships in the public tool. Token-based Claude endpoints are not implemented.
+- **Codex:** a token-based source may exist only as a user-run **opt-in, off by default**, and only if R3 does not rate it RED. Until R3, none is implemented.
+- No agent session reads the owner's credential files (for example provider auth files) unless the owner approves that exact action in that session.
+- No usage data leaves the machine, **except** the opt-in snapshot of D-016: data only (percent, reset time, timestamps, window ids), no tokens, no prompts, no code, written only to a dedicated data branch of a repo the user enabled. **[PROPOSAL, default]** refuse to enable it on public repositories unless the user overrides with a warning.
 
 **Own data model [PROPOSAL — shape only, to refine after R1/R2]:** local store with (a) *limit snapshots* — provider, account label, window id, used %, resets-at, observed-at, source, confidence; (b) *work sessions* — agent, start/end, tokens or cost where observable, % of window consumed, outcome (completed / stopped by policy / hit limit); (c) *policy events* — which rule fired, when, what the agent was told. No message content is stored.
 
@@ -122,8 +130,8 @@ Local web page served by the tool. Time-range selector; line/area graph of used 
 - **Unknown ≠ OK.** If limit data is missing, stale or unparseable, the answer is `unknown`, and the policy decides the safe behavior. It never reports 0% by default.
 - **Provider changes formats or limits without notice.** Collectors must fail loudly and say which source broke.
 - **Several agents share one account.** Two agents can burn the same window at once. The tool should show combined consumption. Per-agent attribution may be partial.
-- **Cloud agents (first-class, D-006).** A cloud session runs in a provider container and cannot read the user's local files; local collectors do not work there. Open: what limit data a cloud session can see itself (preliminary cloud research is in `research/PRELIM-S1-cloud.md`, unverified by the main agent; key result: no documented in-cloud readout, limits are account-level and shared, so a **local** collector can measure what cloud agents burn), whether hooks/status line run there, network allowlists, ephemeral disks, and which bridge to use (snapshot in a user-owned private repo, environment secret, MCP connector, or provider-native data only). See Q-16.
-- **Headless/automation blind spots.** Claude `claude -p` and Codex `codex exec` may expose no limit data (Codex: `rate_limits: null`). The policy must treat that as `unknown` (Q-18).
+- **Cloud agents — design decided (D-006, D-015, D-016, D-026; evidence in `research/PRELIM-S1-cloud.md`, ✅ verified 2026-11-08).** Facts: cloud sessions share the account allowance with local use, so a **local** collector measures what cloud agents burn. A cloud VM has no documented readout, cannot read local files, and loads repo hooks only in a **single-repository** session. Layered bridge: (1) cloud policy defaults to `unknown`; (2) the local collector commits a data-only snapshot to a data branch of the repo the agent works on; a `SessionStart` hook plus `CLAUDE.md` make the agent read and re-fetch it, with `observed_at` and an `unknown`-when-stale rule; (3) optional push of a warning into a known session with `claude -p "…" --cloud <session-id>`. Resume in cloud = a one-off Claude scheduled task the user creates, or the local push in (3); a cloud agent cannot create a scheduled task itself (`/schedule` is unavailable in cloud). Open for S2: does `rate_limits` or `/usage` exist inside a cloud VM (probe approved, D-027); PreToolUse/Stop hooks in cloud; what a cloud session prints at the limit. Decision record: D-015.
+- **Headless/automation blind spots.** Claude `claude -p` and Codex `codex exec` may expose no limit data (Codex: `rate_limits: null`). The policy treats that as `unknown` and automation gets a stricter default (smaller steps, earlier checkpoint). Documented limitation, not a wrapper (D-018). Several agents on one account: combined account-level view, per-agent attribution best-effort (D-019).
 - **Several accounts or plans** (personal/work; API key vs subscription): different limit types. Account labels are needed.
 - **Time zones, clock skew, DST** for reset times.
 - **User and agent disagree** (policy says stop; user says continue): the user's explicit instruction wins, and the override is logged.
@@ -139,19 +147,21 @@ Each step must be testable and reviewable. Order is a proposal; research may rem
 4. **Step 4 — Collector: Claude Code** (source from R1/R3). Check: run against the owner's real, authorized data (gate 2) and a redacted fixture.
 5. **Step 5 — Collector: Codex** (source from R2/R3). Same checks.
 6. **Step 6 — Agent CLI (`status`, `advise`, `record`)** with `--json`. Check: output schema tests; an agent reads it.
-7. **Step 7 — Agent integration:** hooks/instruction snippets/optional MCP per R4, for both providers. Check: a real agent session sees the limits and follows a rule.
+7. **Step 7 — Agent integration:** hooks/instruction snippets per R4 for Claude Code (local and cloud) and Codex (local). Includes the cloud bridge of D-015/D-016 (opt-in snapshot push, `SessionStart` hook, optional `--cloud` push). Optional MCP only if R4 shows a need. Check: a real local agent session sees the limits and follows a rule; a real Claude Code cloud session reads a snapshot and follows a rule.
 8. **Step 8 — Dashboard v0:** graphs from the store. Check: owner opens it on the real device.
 9. **Step 9 — History for agents / learning:** summaries and estimates readable by agents. Check: tests; owner reviews sample output.
 10. **Step 10 — Packaging, docs, license, public release.** Check: a fresh machine can install from the README.
 
 ## 6. Workflow settings (required)
 - **Playbook source/ref:** embedded copy in `docs/workflow/`; upstream `Simooo1010/claude-project-playbook` commit `e9abfefc9fa120504918e464f4bf2a7dcadf0570` (D-001; changes in `docs/workflow/ADAPTATIONS.md`).
-- **Approval mode:** **Strict** (default). Owner may change it by recording a decision. The owner wants high autonomy later; propose revisiting after Step 2 (Q-10).
+- **Approval mode:** **Strict** through Step 2 (policy engine). Then **Milestone**, only if the gates are green. Autonomous only for steps with strong automated tests (D-020). Until the owner records a change, Strict applies.
 - **Owner:** Simooo1010 (repository owner).
-- **Test device(s):** owner's OS is **Windows (native)**; browser and window sizes not yet recorded (Q-12).
-- **Supported UI:** minimal dashboard; one desktop browser; no design system.
-- **Allowed external writes:** none. This repository only, on the session branch. Providers are read-only.
-- **Approved dependencies:** **none yet.** Stack and dependencies are decided in Q-02 and then recorded here, with approver and date.
+- **Test device(s):** owner's OS is **Windows (native)**; browser **Chrome** (desktop), light theme, two window sizes: wide and narrow (D-021). Plans for real-data runs: Claude Pro, ChatGPT Plus (D-014). Cloud surfaces the owner can test: Claude Code web/app and Claude scheduled tasks (D-026).
+- **Supported UI:** minimal dashboard; Chrome on Windows; one theme; two sizes; no design system.
+- **Allowed external writes:** none during docs and research sessions: this repository only, on the session branch. Providers are read-only. **From the build phase only:** the opt-in snapshot push of D-016 (data branch of a repo the user enables), and publishing to npm and GitHub releases at release time with the owner's explicit approval (D-025).
+- **Stack (D-023):** TypeScript on Node: CLI + local dashboard server, SQLite, Vitest, no hosting, no Vercel. **Approved dependencies: none yet.** Each package (SQLite driver, chart library, CLI parser, YAML parser) is proposed in R8 and recorded here with approver and date. Reuse policy: own small core; ccusage is reviewed in S2 for token history only (D-013).
+- **License:** MIT (D-024). The `LICENSE` file is added in Step 1.
+- **Distribution:** npm (`npx`) + GitHub releases after v1 works (D-025).
 - **Production merge/release:** owner approval required. No written delegation exists.
 - **Project commands:** lint / build / tests: not defined yet (Step 1).
 - **Design system:** none (D-002).
@@ -171,6 +181,22 @@ Each step must be testable and reviewable. Order is a proposal; research may rem
 | D-008 | 2026-11-08 | Agents may **only propose** policy edits. The user approves before they apply. | Owner (S1 Round 2) | 3.5 |
 | D-009 | 2026-11-08 | "Resume" in v1 = agent writes a **checkpoint plus a restart recipe** per provider. Automated self-resume is added only after research confirms what is allowed. | Owner (S1 Round 2) | 3.2, 3.3 |
 | D-010 | 2026-11-08 | History retention default **90 days**, local, user-configurable. | Owner (S1 Round 2) | 2 |
-| D-011 | 2026-11-08 | **PROVISIONAL.** Token-based data sources: owner chose "opt-in, off by default" before seeing the research. Evidence now suggests Anthropic's text prohibits it. Owner must reconfirm or narrow (Q-08b). | Owner (S1 Round 1), pending reconfirm | 2 |
+| D-011 | 2026-11-08 | ~~PROVISIONAL.~~ **Superseded by D-012.** | Owner | 2 |
+| D-012 | 2026-11-08 | **Token rule (Q-08b).** Official, token-free sources are the default for both providers. Token-based sources are a user-run opt-in, off by default. **Claude: no token-based code ships in the public tool.** Codex: a token-based opt-in is allowed only if R3 does not rate it RED. Owner first said "continue for both Claude and Codex"; after the Anthropic clause was shown, the owner chose this narrowed form. No agent reads credential files without per-action approval. | Owner (S1b) | 2 |
+| D-013 | 2026-11-08 | **Reuse or build (Q-15).** Own small core for collectors, policy engine and store. S2 reads ccusage's code and license and decides separately whether to reuse it for token history only. Any dependency still needs owner approval. | Owner (S1b) | 6 |
+| D-014 | 2026-11-08 | **Plan tiers.** Claude **Pro**. ChatGPT **Plus** (for Codex). Windows are read live; no hardcoded 5h/weekly. Max, Ultra and ChatGPT Pro are supported by design but not testable by the owner. | Owner (S1b) | 1, 6 |
+| D-015 | 2026-11-08 | **Cloud bridge (Q-16), layered:** (1) cloud policy defaults to `unknown`; (2) local collector writes a data-only snapshot to a data branch of the repo the agent works on, read by a `SessionStart` hook and `CLAUDE.md`, with `observed_at` and `unknown`-when-stale; (3) optional `claude -p "…" --cloud <session-id>` push. No hosted endpoint, no env-var secret, no MCP connector in v1. Codex cloud deferred (D-026). | Owner (S1b) | 3.3, 4 |
+| D-016 | 2026-11-08 | **Snapshot write.** The local collector may push the snapshot of D-015, **opt-in per repo, off by default**, to a dedicated data branch only. Data only: percent, reset time, timestamps, window ids. Never tokens, prompts, code or messages. Not active before the build phase. | Owner (S1b) | 2, 6 |
+| D-017 | 2026-11-08 | **Enforce or advise (Q-17).** Each policy rule has a per-rule `enforce`/`advise` switch the user can flip. Defaults: hard block at 95% where hooks can block (Claude local; Claude cloud once R4 confirms hooks), advice elsewhere (Codex, cloud without confirmed hooks). User overrides are logged. | Owner (S1b) | 3.3 |
+| D-018 | 2026-11-08 | **Headless blind spot (Q-18).** Accept `unknown` plus conservative defaults and document it. No interactive wrapper in v1. S2 looks for a safe source first. | Owner (S1b) | 4 |
+| D-019 | 2026-11-08 | **Several agents on one account (Q-14).** Combined account-level view in v1. Per-agent attribution best-effort. | Owner (S1b) | 2, 4 |
+| D-020 | 2026-11-08 | **Approval mode (Q-10).** Strict through Step 2, then Milestone if gates are green. Autonomous only for steps with strong automated tests. | Owner (S1b) | 6 |
+| D-021 | 2026-11-08 | **Test device (Q-12).** Windows, Chrome, light theme, two window sizes (wide, narrow). | Owner (S1b) | 3.4, 6 |
+| D-022 | 2026-11-08 | **Name (Q-01).** Keep `show-llm-limits`. Text may say "for Claude Code and Codex users" with a non-affiliation notice. R3 re-checks "Codex". | Owner (S1b) | header |
+| D-023 | 2026-11-08 | **Stack (Q-02).** TypeScript on Node: CLI + local dashboard server, SQLite, Vitest, no hosting. Packages approved one by one after R8. | Owner (S1b) | 6 |
+| D-024 | 2026-11-08 | **License (Q-05).** MIT. R7 confirms compatibility with any reused code. | Owner (S1b) | 6 |
+| D-025 | 2026-11-08 | **Distribution (Q-06).** npm (`npx`) + GitHub releases after v1 works. Publishing needs the owner's explicit approval at release time. | Owner (S1b) | 6 |
+| D-026 | 2026-11-08 | **Cloud surfaces.** Owner uses Claude Code on the web/app and Claude scheduled tasks. Owner does **not** use Codex cloud or GitHub Actions. Therefore Codex cloud and GitHub Actions automation are **consciously deferred** from v1. Codex v1 = local CLI and headless. This narrows D-006/D-007 for Codex. | Owner (S1b) | 1 |
+| D-027 | 2026-11-08 | **Cloud probe.** Owner allows Session 2 to run a harmless probe in a throwaway cloud session to learn whether `rate_limits` or `/usage` exist in a cloud VM, **after I show the exact probe and the owner approves that exact action.** No tokens read, nothing pushed to the owner's repos. | Owner (S1b) | 3.3 |
 
 Record spec changes with a `SPEC:` commit and a new row here.
