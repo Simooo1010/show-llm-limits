@@ -86,3 +86,14 @@ Status: **All questions are answered or consciously deferred (end of Session 1b,
 | Probe script for `rate_limits`/`/usage` in a cloud VM | Not run. Owner approves the exact script first (D-027). | S2 |
 | Whether Codex app-server works on Windows native and its schema stability | Unknown; verify in R2. | S2 |
 | What a Claude cloud session prints at a limit; PreToolUse/Stop hooks in cloud | Unknown; advice-only in cloud until confirmed (D-017). | S2 (R4) |
+
+## Owner queue (unattended runs)
+Autonomous windows (D-028) write here each item that needs the owner. To answer, add a line `ANSWER: <text>` under the row. You can also tell an interactive session. A window reads the answers when it starts. It records each answer as a `SPEC:` decision. An open row never stops other work.
+
+| ID | What the owner must do | Recommendation | What it blocks | Default if no answer |
+|---|---|---|---|---|
+| OQ-1 | Approve or reject the exact **cloud probe script** (D-027). A window first writes the script in `research/` and shows it. | Read the script. Approve it if it reads no tokens and pushes nothing. | The answer to this question: do `rate_limits` and `/usage` exist in a cloud VM? | Cloud stays `unknown`. We use the bridge design only. |
+| OQ-2 | Approve each **package** that R8 proposes (SQLite driver, chart library, CLI parser, YAML parser). | Approve the smallest set that meets the spec. | Step 1 (project skeleton). | We add no dependency. |
+| OQ-3 | **Merge** the draft PR from `docs/s2-autonomous` into `main` when you want the research on `main`. A window never merges. | Merge after you read `research/INDEX.md`. | Nothing. Work continues on the branch. | The PR stays a draft. |
+| OQ-4 | **Approve the spec** (Session 3). Only you can write "Spec approved". | Read the v1 proposal text first. | All product code. | We write no code. |
+| OQ-5 | Confirm that the schedule time zone is **Europe/Rome**. We assumed it from the +01:00 time in your commits. | Confirm it, or name the correct zone. | The run times only. | Europe/Rome stays. |

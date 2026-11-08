@@ -27,6 +27,7 @@ Not copied: upstream `README.md`, `SETUP-FOR-OWNER.md` (replaced by this reposit
 | A-4 | `PROVIDER-ADAPTERS.md`, `HOW-TO-WORK-WITH-AGENTS.md` | Added a notice at the top. No other change. | Mark them as embedded copies. Upstream wording about "external playbook" is kept for easy diffing. |
 | A-5 | WORKFLOW §4 step 1 | Replaced "design-system README when UI is touched" with "no design system in v1 (D-002)". | Owner decision: no design work now. |
 | A-6 | WORKFLOW §2 step 3 | Template path changed to `docs/workflow/SPEC.template.md`; "playbook SHA" changed to "upstream playbook SHA". | Paths and wording for the embedded layout. |
+| A-7 | WORKFLOW §11 and `AGENTS.md` | Changed the style rule from "about 80% of ASD-STE100" to "follow ASD-STE100 fully and always" for all English text for the owner. Code, commands, logs, API names and quotations stay out of scope. | Owner order on 2026-11-08 (D-029). |
 
 ## Intentionally unchanged (and why)
 - §6 quality gates 4 and 5 (device walkthrough, screenshots) stay. The dashboard is a UI. For v1, "supported screens/themes/sizes" is defined in `docs/SPEC.md`, kept minimal because there is no design phase.

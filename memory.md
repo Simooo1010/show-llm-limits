@@ -13,6 +13,18 @@
 - **Upstream playbook:** `Simooo1010/claude-project-playbook` @ `e9abfefc9fa120504918e464f4bf2a7dcadf0570`, embedded in `docs/workflow/` with local changes in `ADAPTATIONS.md`. The playbook repo was read-only for S0 and was not changed.
 - **Stack / license / name:** TypeScript on Node + SQLite + Vitest, no hosting (D-023); MIT (D-024); name `show-llm-limits` (D-022); npm + GitHub releases after v1 (D-025). **Dependencies: none approved yet** (R8 proposes, owner approves each). Owner OS: Windows native, Chrome. Plans: Claude Pro, ChatGPT Plus (D-014).
 
+## Autonomous mode (D-028)
+- The owner asked for unattended windows. A window is one work session of 20 minutes. The next window starts 5 hours 30 minutes after the last start (20 minutes of work, then 5 hours 10 minutes of wait). The first window starts 2026-11-08 17:00 Europe/Rome.
+- Each window is a new session. A scheduled task named `S2 window …` starts it.
+- Scope: Session 2 research, docs only. Branch: `docs/s2-autonomous`. Draft PR #3. A window does not merge. A window does not force-push. A window writes no code.
+- Prompt and rules: `docs/AUTONOMOUS-RUN-PROMPT.md`. Items for the owner: the "Owner queue" in `docs/OPEN-QUESTIONS.md`.
+- To stop the windows: the owner says "stop the S2 windows". After 3 idle windows in a row, the windows stop by themselves.
+- **Style rule (D-029):** write all English text in ASD-STE100, fully and always. See `AGENTS.md`.
+
+### Autonomous log (append only)
+| UTC start | UTC end | Done | Next | Idle |
+|---|---|---|---|---|
+
 ## Owner decisions so far (details in `docs/SPEC.md` §7)
 - D-001 Embed and follow the playbook always; owner may adapt it.
 - D-002 No design now; fast and functional.

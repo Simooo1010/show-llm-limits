@@ -228,7 +228,7 @@ The app's current approved stack outranks these **defaults**. Never install Next
 
 ## 11. Communication
 
-- Docs and code in English; reply in the owner's language. Use clear, concise, consistent wording inspired by ASD-STE100 (approximately 80% of its style, not a formal compliance claim); preserve technical precision and necessary detail.
+- Docs and code in English; reply in the owner's language. **[ADAPTED — ADAPTATIONS.md A-7.]** Write all English text for the owner in ASD-STE100 Simplified Technical English. Follow it fully and always (D-029). Keep technical precision and necessary detail.
 - Owner-facing checklists and setup steps in simple language.
 - Ask material clarification questions early with a recommended option when useful.
 - Keep progress updates concise; durable records belong in target commits, PRs and spec/decision log.
