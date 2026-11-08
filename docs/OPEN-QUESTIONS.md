@@ -2,7 +2,7 @@
 
 Ask the owner in grouped rounds of up to four questions (use the structured-question tool if the host has one). Each question has a **recommendation**. Record each answer in `docs/SPEC.md` §7 and update the spec. Mark answered items below with the date and decision ID.
 
-Status: `OPEN` unless stated.
+Status: `OPEN` unless the **Answers log** (bottom) shows an answer. **Answered in Session 1:** Q-03, Q-04, Q-07, Q-09, Q-11, Q-13 (and Q-08 provisionally). **Still open:** Q-01, Q-02, Q-05, Q-06, Q-10, Q-12, Q-14, plus the new Q-08b, Q-15–Q-18 at the bottom. Q-03's old "cloud later" recommendation is **withdrawn**: cloud is first-class (D-006).
 
 ## Round 1 — scope and reality (ask first; they change research)
 | ID | Question | Recommendation | Why it matters |
@@ -37,4 +37,20 @@ Status: `OPEN` unless stated.
 ## Answers log
 | Date | ID | Answer | Recorded in |
 |---|---|---|---|
-| — | — | (none yet) | — |
+| 2026-11-08 | Q-03 | Local CLI + cloud sessions + automation (headless/CI). IDE extension not selected. Mid-session: "we have to focus also on cloud, not only local". | D-006, D-007 |
+| 2026-11-08 | Q-04 | Claude subscription (Pro/Max) + ChatGPT subscription (Plus/Pro) for Codex. No API keys, no Team/Enterprise. Exact tiers not given (ask in S1b). | D-007 |
+| 2026-11-08 | Q-07 | Windows (native). | D-007 |
+| 2026-11-08 | Q-08 | "Opt-in, off by default" — before seeing research. **Provisional.** | D-011 |
+| 2026-11-08 | Q-09 | Agents propose only; user approves. | D-008 |
+| 2026-11-08 | Q-11 | Checkpoint + restart recipe; automate after research. | D-009 |
+| 2026-11-08 | Q-13 | 90 days. | D-010 |
+| 2026-11-08 | Cloud bridge | Owner chose "decide after research", then said cloud must be a focus. Tracked as Q-16. | D-006 |
+
+## New questions raised in Session 1 (ask in S1b; each has my recommendation)
+| ID | Question | Recommendation | Why it matters |
+|---|---|---|---|
+| Q-08b | **Narrow the token rule.** Research: Anthropic's published text bars collecting/storing/intermediating subscription credentials; usage endpoints are undocumented. Options: (a) never use token-based sources for Claude; for Codex only the app-server (Codex holds the login); (b) opt-in for both; (c) as you decided before. | **(a).** The status line gives Claude limits with no token. A public tool that risks every user's account is not "free for everyone". | Public ban risk. Confirms or replaces D-011. |
+| Q-15 | **Reuse or build?** ccusage (MIT, large) already reads local logs and has a status-line command; CodexBar is macOS-only. Options: (a) own collectors, own small core; (b) depend on ccusage as a library/CLI for token history; (c) fork. | **(a)** for limits and policy (the gap), and read ccusage's code/license in S2 before deciding on token history. | Dependencies need your approval; maintenance load. |
+| Q-16 | **Cloud bridge.** After cloud research, choose how cloud agents get limit data: private-repo snapshot, environment secret, MCP connector, provider-native only, or a mix. | Decide in S1b after the cloud research is redone. | D-006 makes it a v1 requirement. |
+| Q-17 | **Enforce or advise?** Claude hooks (`PreToolUse`, `Stop`) can block; `StopFailure` cannot. Should the 95% rule be a hard block, or advice the agent may ignore? | Hard block by hook where the provider allows; advice elsewhere; user can switch per rule. | Real autonomy needs enforcement; wrong blocks waste work. |
+| Q-18 | **Headless blind spot.** `codex exec` writes no limit data; Claude headless is unknown. Accept `unknown` + conservative policy, or require running through an interactive wrapper? | Accept `unknown` with conservative defaults; document it. | Affects automation users. |
