@@ -1,0 +1,20 @@
+# Secrets and local config — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Real usage data and local databases — never commit (privacy)
+data/
+*.sqlite
+*.sqlite3
+*.db
+.show-llm-limits/
+
+# Tooling
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.log
