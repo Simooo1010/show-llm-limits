@@ -51,6 +51,10 @@
 - **Enforce vs advise (R4):** unknown which behaviors can be enforced by hooks.
 - **Provider limits change without notice (R5).**
 
+## S2 interactive status (branch `claude/stoic-ritchie-teysq2`, draft PR #4)
+- Cloud probe approved (D-027a). Owner runs it in a throwaway repo and pastes the output. **Not yet run.**
+- Wave 1 subagents (R3, R1, R2) were stopped by the owner's request before they wrote files. Restart them: R3 first. PR #3 (`docs/s2-autonomous`) runs a separate autonomous track; reconcile outputs before merging either PR.
+
 ## Next action
 1. Owner reviews draft PR #1 (S1 + S1b docs) and merges it, or starts S2 on the same branch.
 2. Start **Session 2 (Research)** with the prompt in `docs/SESSIONS.md` (adjusted to the S1b answers). First show the owner the exact cloud probe script (D-027) and wait for approval before running it.
