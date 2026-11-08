@@ -6,7 +6,7 @@
 `show-llm-limits` is a free, public tool. It shows AI coding agents (Claude Code, OpenAI Codex) their usage limits from the user's account, gives them a user-editable behavior policy for managing work around those limits (for example stop at 95%, resume after the window resets, split work into steps, checkpoint), and gives the user a dashboard of limits over time. The same history is readable by agents so they can learn to balance work and limits, and work autonomously if the user wants. v1 goal: **working and functional as fast as possible; no design work.**
 
 ## Current state (update every session)
-- **Phase:** S0 done. **S1 Define details is partly done (Rounds 1–2 answered; pre-research on Claude Code, Codex and legitimacy done; cloud research NOT finished). Continue in S1b.**
+- **Phase:** S0 done. **S1 Define details is partly done (Rounds 1–2 answered; pre-research on Claude Code, Codex and legitimacy done; cloud research done in `research/PRELIM-S1-cloud.md`, unverified). Continue in S1b.**
 - **Spec:** `docs/SPEC.md` is **DRAFT v0, NOT APPROVED**. **No product code is allowed.**
 - **Approval mode:** Strict (default).
 - **Repository:** `Simooo1010/show-llm-limits`. `main` was created at the S0 commit `9d95e4e` (owner said "merge also"). S1 work is on branch `claude/focused-feynman-bx04fi` with a draft PR into `main`. **Merge that PR before S1b, or start S1b on that branch.**
@@ -34,6 +34,7 @@
 - ✅ Anthropic text bars collecting/storing/intermediating subscription credentials → token-based Claude sources are high risk. Naming: avoid Claude/Anthropic/OpenAI/ChatGPT/GPT in the name; `show-llm-limits` is fine.
 - Codex: rollout files (`rate_limits`, undocumented) and app-server `account/rateLimits/read`; `codex exec` has null limits. Unverified by main agent.
 - Claude Code already has built-in auto-continue at limit; our value is policy + checkpoint + history + agent feed. Gap in prior art (ccusage, CodexBar…): agent feed + editable policy + cloud + Windows.
+- Cloud: no documented in-cloud readout; limits are account-level and shared; best bridge candidate = local collector → snapshot in a user-owned private repo attached to the session + SessionStart hook (Claude); Codex cloud has no repo hooks (advice only). Routines allow one-shot future runs (Claude cloud resume).
 - Windows differ by plan; read live.
 
 ## Known risks and unknowns (to resolve in research)
@@ -45,7 +46,7 @@
 
 ## Next action
 1. Owner merges the S1 draft PR into `main` (or starts S1b on the S1 branch).
-2. Start **Session 1b** with the prompt in `docs/SESSIONS.md`: redo cloud research (not finished), ask Q-08b, Q-15–Q-18, Q-14, Q-10, Q-12, Q-01, Q-02, Q-05, Q-06 and plan tiers, then run the doubt check.
+2. Start **Session 1b** with the prompt in `docs/SESSIONS.md`: verify the cloud research (`research/PRELIM-S1-cloud.md`, check ★ claims), ask Q-08b, Q-15–Q-18, Q-14, Q-10, Q-12, Q-01, Q-02, Q-05, Q-06 and plan tiers, then run the doubt check.
 
 ## Session log (append only; newest last)
 | Session | Date | Branch | Summary | Next |
