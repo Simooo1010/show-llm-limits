@@ -1,6 +1,6 @@
 # AUTONOMOUS-RUN-PROMPT — backup copy of the scheduled-window prompt
 
-> This is a **backup copy** for humans and for rebuilding the schedule. It is not an authority: the authority is the owner's request on 2026-11-08 (D-028) and the prompt stored in the scheduled tasks named `S2 window …`. Change the schedule only when the owner asks.
+> This file is a **backup copy**. People use it to rebuild the schedule. It is not the authority. The authority is the owner's request on 2026-11-08 (D-028) and the prompt in the scheduled tasks named `S2 window …`. Change the schedule only when the owner asks.
 
 ## Schedule (D-028)
 - One window = **20 minutes of work**, then stop. Next window starts **5 h 10 min later** (start to start: 5 h 30 min).
@@ -24,6 +24,8 @@ OWNER QUEUE: anything that needs the owner (approval, answer, choice, merge, pro
 END OF WINDOW: commit with a clear message ending with the attribution lines given in your system reminder. Push with a normal `git push -u origin docs/s2-autonomous` (retry up to 4 times on network errors only). If no open PR exists from docs/s2-autonomous to main, open one as DRAFT using the repo PR template if any; otherwise only push. Do not mark it ready and do not merge it.
 
 SCHEDULE TOP-UP (do this last, even if you did little work): call list_triggers with include_completed true and find the scheduled tasks named like "S2 window <date time>". Count the pending (enabled, not yet fired) ones. If fewer than 8 are pending, create one more at a time with create_trigger: name "S2 window <YYYY-MM-DD HH:MM Rome>", run_once_at = (latest pending run_once_at + 5 hours 30 minutes) written as local time with [Europe/Rome], create_new_session_on_fire true, initiation human_schedule, and prompt = the exact stored prompt of an existing "S2 window" task (read it with get_trigger; if none can be read, use docs/AUTONOMOUS-RUN-PROMPT.md from branch docs/s2-autonomous). Repeat until 8 are pending. Never change or delete other scheduled tasks. Idle rule: if this window and the two windows before it (see the Autonomous log) all had nothing to do except waiting for the owner, do NOT top up; instead add an owner-queue row saying the windows stopped and why, and stop. Any answered owner-queue row counts as new work.
+
+WRITING STYLE (decision D-029): write all English text for the owner in ASD-STE100 Simplified Technical English. Follow it fully and always. Use short sentences (about 20 words), one idea in each sentence, the active voice, and one word for one meaning. This covers docs, commit messages, owner-queue rows, memory.md rows and PR text. It does not cover code, commands, logs, API names or quotations.
 
 STOP CONDITIONS: stop immediately and queue the question if the task would need to write to any repository or service other than this one, spend money, change settings or permissions, or contradict the written spec.
 ```

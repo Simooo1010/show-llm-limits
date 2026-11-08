@@ -14,8 +14,12 @@
 - **Stack / license / name:** TypeScript on Node + SQLite + Vitest, no hosting (D-023); MIT (D-024); name `show-llm-limits` (D-022); npm + GitHub releases after v1 (D-025). **Dependencies: none approved yet** (R8 proposes, owner approves each). Owner OS: Windows native, Chrome. Plans: Claude Pro, ChatGPT Plus (D-014).
 
 ## Autonomous mode (D-028)
-- Owner asked for unattended windows: **20 min of work every 5 h 30 min** (20 min + 5 h 10 min wait), first at **2026-11-08 17:00 Europe/Rome**. Fresh sessions fired by scheduled tasks named `S2 window …`. Scope: Session 2 research, docs only, branch `docs/s2-autonomous`, draft PR, **no merge, no force-push, no code**. Prompt and rules: `docs/AUTONOMOUS-RUN-PROMPT.md`. Owner needs: `docs/OPEN-QUESTIONS.md` → "Owner queue".
-- Stop: owner says "stop the S2 windows". Idle rule: 3 idle windows in a row → stop topping up and queue a note.
+- The owner asked for unattended windows. A window is one work session of 20 minutes. The next window starts 5 hours 30 minutes after the last start (20 minutes of work, then 5 hours 10 minutes of wait). The first window starts 2026-11-08 17:00 Europe/Rome.
+- Each window is a new session. A scheduled task named `S2 window …` starts it.
+- Scope: Session 2 research, docs only. Branch: `docs/s2-autonomous`. Draft PR #3. A window does not merge. A window does not force-push. A window writes no code.
+- Prompt and rules: `docs/AUTONOMOUS-RUN-PROMPT.md`. Items for the owner: the "Owner queue" in `docs/OPEN-QUESTIONS.md`.
+- To stop the windows: the owner says "stop the S2 windows". After 3 idle windows in a row, the windows stop by themselves.
+- **Style rule (D-029):** write all English text in ASD-STE100, fully and always. See `AGENTS.md`.
 
 ### Autonomous log (append only)
 | UTC start | UTC end | Done | Next | Idle |
