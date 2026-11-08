@@ -1,6 +1,6 @@
 # PROBE (PROPOSED, NOT RUN) — do limit data and hooks exist inside a Claude Code cloud VM?
 
-**Status: PROPOSAL, waiting for the owner to approve this exact script (D-027). No agent has run it. Nothing in this file has been executed.**
+**Status: APPROVED by the owner on 2026-11-08 ("probe approved", recorded as D-027a). The approval covers this exact script and prompt only. Any change needs new approval. No agent runs it: the owner runs it in a throwaway repo and pastes the output back. Not yet run.**
 
 ## Question it answers
 Inside a Claude Code cloud session:

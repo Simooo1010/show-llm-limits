@@ -198,5 +198,6 @@ Each step must be testable and reviewable. Order is a proposal; research may rem
 | D-025 | 2026-11-08 | **Distribution (Q-06).** npm (`npx`) + GitHub releases after v1 works. Publishing needs the owner's explicit approval at release time. | Owner (S1b) | 6 |
 | D-026 | 2026-11-08 | **Cloud surfaces.** Owner uses Claude Code on the web/app and Claude scheduled tasks. Owner does **not** use Codex cloud or GitHub Actions. Therefore Codex cloud and GitHub Actions automation are **consciously deferred** from v1. Codex v1 = local CLI and headless. This narrows D-006/D-007 for Codex. | Owner (S1b) | 1 |
 | D-027 | 2026-11-08 | **Cloud probe.** Owner allows Session 2 to run a harmless probe in a throwaway cloud session to learn whether `rate_limits` or `/usage` exist in a cloud VM, **after I show the exact probe and the owner approves that exact action.** No tokens read, nothing pushed to the owner's repos. | Owner (S1b) | 3.3 |
+| D-027a | 2026-11-08 | **Probe script approved.** The owner approved the exact script and prompt in `research/PROBE-cloud-limits-PROPOSED.md`. The owner runs it in a throwaway private repo. No agent pushes to the owner's repos. Output is pasted back to a session. ID chosen to avoid a clash with D-028/D-029 on PR #3. | Owner (S2) | 3.3 |
 
 Record spec changes with a `SPEC:` commit and a new row here.
