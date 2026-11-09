@@ -34,3 +34,7 @@ The owner embedded the development playbook in this repository. **It governs eve
 ## Communication style (from upstream `AGENTS.md`)
 For owner-facing explanations, reasoning summaries, decisions and progress reports in English: use clear, short sentences and consistent terms, about 80% of the way to ASD-STE100 Simplified Technical English. Keep technical precision. This is a readability preference, not a claim of formal compliance. Do not apply it to code, commands, logs, API names or quotations. When the owner writes in another language, answer in that language with the same clarity.
 Use a compact diagram when it helps explain a non-trivial design (WORKFLOW §11.1). No decorative visuals.
+
+## Language
+
+Chat with me in Italian. Write all code, comments, commit messages, docs, config files, skills and subagent prompts in English. Exception: deliverables explicitly meant for Italian readers stay in Italian.
